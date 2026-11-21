@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Warehouse Management System | Vanitory WMS</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- หน้า Login -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px;">
+        <svg width="26" height="26" viewBox="0 0 100 100" style="flex-shrink:0;">
+          <ellipse cx="22" cy="22" rx="14" ry="9" fill="#0f172a"/>
+          <ellipse cx="36" cy="50" rx="14" ry="9" fill="#0f172a"/>
+          <ellipse cx="50" cy="78" rx="14" ry="9" fill="#0f172a"/>
+          <ellipse cx="64" cy="50" rx="14" ry="9" fill="#0f172a"/>
+          <ellipse cx="78" cy="22" rx="14" ry="9" fill="#0f172a"/>
+        </svg>
+        <h2 style="margin:0; color:#0f172a; letter-spacing:1px;">VANITORY</h2>
+      </div>
+      <p style="text-align:center; color:#64748b; font-size:13px; margin-top:0; margin-bottom:24px;">เข้าสู่ระบบจัดการคลังสินค้า (Warehouse Management System)</p>
+
+      <form id="loginForm">
+        <div style="margin-bottom:14px;">
+          <label style="font-size:13px; font-weight:600; color:#334155;">ชื่อผู้ใช้งาน (Username)</label>
+          <input type="text" id="loginUsername" value="cosmetic_staff01" required style="width:100%; margin-top:6px;">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:13px; font-weight:600; color:#334155;">บทบาทสิทธิ์ (Role)</label>
+          <select id="loginRole" style="width:100%; margin-top:6px;">
+            <option value="staff">🧑‍💻 พนักงานคลัง (Staff)</option>
+            <option value="admin">🛡️ ผู้ตรวจสอบ (Auditor - Read Only)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:10px; font-size:14px;">เข้าสู่ระบบ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- โครงหน้าหลัก -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <svg width="24" height="24" viewBox="0 0 100 100" style="flex-shrink:0;">
+        <ellipse cx="22" cy="22" rx="14" ry="9" fill="#b3aeae"/>
+        <ellipse cx="36" cy="50" rx="14" ry="9" fill="#b3aeae"/>
+        <ellipse cx="50" cy="78" rx="14" ry="9" fill="#b3aeae"/>
+        <ellipse cx="64" cy="50" rx="14" ry="9" fill="#b3aeae"/>
+        <ellipse cx="78" cy="22" rx="14" ry="9" fill="#b3aeae"/>
+      </svg>
+      <span>VANITORY</span>
+    </div>
+    <ul id="sidebarMenu" class="sidebar-menu">
+      <li data-page="dashboard" class="active"><a href="#dashboard" onclick="navigateTo('dashboard', event)">📊 แดชบอร์ดสรุปภาพรวม</a></li>
+      <li data-page="stock"><a href="#stock" onclick="navigateTo('stock', event)">📦 สต็อกและล็อตสินค้า (Stock)</a></li>
+      <li data-page="inbound"><a href="#inbound" onclick="navigateTo('inbound', event)">📥 ตรวจรับสินค้าเข้า <span id="badge-inbound"></span></a></li>
+      <li data-page="orders"><a href="#orders" onclick="navigateTo('orders', event)">🚚 รอบจัดส่งออร์เดอร์ <span id="badge-orders"></span></a></li>
+      <li data-page="internal"><a href="#internal" onclick="navigateTo('internal', event)">🏢 เบิกสินค้าใช้ภายใน <span id="badge-internal"></span></a></li>
+      <li data-page="returns"><a href="#returns" onclick="navigateTo('returns', event)">🔄 สินค้าตีกลับ & Quarantine <span id="badge-returns"></span></a></li>
+      <li data-page="admin" data-role-only="admin"><a href="#admin" onclick="navigateTo('admin', event)">🛡️ ระบบตรวจสอบ (Audit)</a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <header>
+      <h3 id="pageHeaderTitle" style="margin:0; font-size: 18px; color:#1e293b;">Warehouse Management System</h3>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span id="roleIndicator">สิทธิ์การใช้งาน: <b>🧑‍💻 พนักงานคลัง (Staff)</b></span>
+        <button type="button" class="btn btn-secondary" style="font-size:12px; padding:4px 10px;" onclick="switchRole()">สลับบทบาทสิทธิ์</button>
+        <button type="button" class="btn btn-outline" style="font-size:12px; padding:4px 10px;" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </header>
+    <div id="contentBody" class="content-body"></div>
+  </div>
+
+  <!-- Custom Modal กลางจอ -->
+  <div id="globalCenterModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <span id="modalIcon" style="font-size:26px;">⚠️</span>
+        <h3 id="modalTitle" style="margin:0; color:#0f172a; font-size:18px;">ยืนยันการทำรายการ</h3>
+      </div>
+      <p id="modalBodyText" style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:24px;"></p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" id="modalCancelBtn" class="btn btn-secondary" onclick="closeCenterModal()">ยกเลิก</button>
+        <button type="button" id="modalOkBtn" class="btn btn-success">ยืนยันดำเนินการ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
